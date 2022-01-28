@@ -10,9 +10,11 @@ var middlewareKey string
 
 func WithAuth(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
 		cookie, err := r.Cookie(tokenCookieName)
 		if err != nil {
-			redirect(w, r)
+			url := getOAuthConfig(r).AuthCodeURL(r.URL.Path)
+			http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 			return
 		}
 
@@ -32,9 +34,4 @@ func GetAuth(ctx context.Context) *Auth {
 		return nil
 	}
 	return iface.(*Auth)
-}
-
-func redirect(w http.ResponseWriter, r *http.Request) {
-	url := getOAuthConfig(r).AuthCodeURL(r.URL.Path)
-	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 }

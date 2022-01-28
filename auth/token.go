@@ -9,10 +9,9 @@ import (
 )
 
 var jwtAudience = os.Getenv("OAUTH_AUDIENCE")
-var secretKey = os.Getenv("OAUTH_SECRET")
 
 func validateToken(tokenString string) (*Auth, error) {
-
+	secretKey := os.Getenv("OAUTH_SECRET")
 	token, err := jwt.ParseWithClaims(tokenString, &jwtClaim{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(secretKey), nil
 	})
@@ -35,6 +34,7 @@ func validateToken(tokenString string) (*Auth, error) {
 }
 
 func createToken(claim *jwtClaim) (string, error) {
+	secretKey := os.Getenv("OAUTH_SECRET")
 	claim.ExpiresAt = time.Now().Add(1 * time.Hour).Unix()
 	claim.Audience = jwtAudience
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claim)
